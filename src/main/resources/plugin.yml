@@ -1,0 +1,7 @@
+name: Depo
+version: '${project.version}'
+main: xyz.eyyuepguelen.xyz.depo.Depo
+api-version: 1.19
+depend: [ hCore, Vault ]
+authors: [ zRooter ]
+description: Depo Eklentisi
