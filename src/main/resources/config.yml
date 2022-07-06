@@ -1,0 +1,9 @@
+Ayarlar:
+  prefix: '&6&nDepo&8 »'
+  baslangicFiyat: 1000
+  seviyeFiyatCarpmaOrani: 2
+
+Dil:
+  yetersizBakiye: '&e%ihtiyac% &cBakiyeye ihtiyacınız var.'
+  zatenSonSeviye: '&bZaten Son seviyeye ulaştınız.'
+  seviyeYukseltildi: '&aDeponuzun seviyesi yükseltildi.'

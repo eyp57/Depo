@@ -21,8 +21,9 @@ public class MainGUI extends HInventory {
 
     @Override
     protected void onOpen(@Nonnull Player player) {
-        int i = 0;
+        String prefix = Depo.getInstance().getConfig().getString("Ayarlar.prefix");
         int level = Depo.getData().getInt(player.getName() + ".level");
+        int ucret = Depo.getInstance().getConfig().getInt("Ayarlar.baslangicFiyat") * (level + 1) * Depo.getInstance().getConfig().getInt("Ayarlar.seviyeFiyatCarpmaOrani");
         ItemStack borderItem = new HItemBuilder(XMaterial.BLACK_STAINED_GLASS_PANE.parseMaterial())
                 .glow(true)
                 .name("&c")
@@ -34,7 +35,7 @@ public class MainGUI extends HInventory {
         levelUpItemLore.add("&8| &7Şuanki Seviye: &e" + level + " Svy.");
         levelUpItemLore.add("&8| &7Sonraki Seviye: &e" + (level + 1)+ " Svy.");
         levelUpItemLore.add("&8|");
-        levelUpItemLore.add("&8⌊ &7Ücret: &e" + (1500 * level * 2));
+        levelUpItemLore.add("&8⌊ &7Ücret: &e" + (ucret));
         ItemStack levelUpItem = new HItemBuilder(XMaterial.FIREWORK_ROCKET.parseMaterial())
                 .name("&eSeviye Yükselt")
                 .lores(true, levelUpItemLore)
@@ -44,33 +45,35 @@ public class MainGUI extends HInventory {
             this.fill(borderItem);
             super.setItem(13, levelUpItem, event -> {
                 event.getWhoClicked().closeInventory();
-                if(Depo.getEconomy().has(player, 1500 * level * 2)) {
+                if(Depo.getEconomy().has(player, ucret)) {
                     Depo.getData().set(player.getName() + ".level", level + 1);
-                    Depo.getEconomy().withdrawPlayer(player, 1500 * level *2);
+                    Depo.getEconomy().withdrawPlayer(player, ucret);
                     Depo.getData().save();
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + Depo.getInstance().getConfig().getString("Dil.seviyeYukseltildi")));
                 } else {
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&nDepo&8 » &e" + ((1500*level*2) - Depo.getEconomy().getBalance(player)) + " &cBakiyeye ihtiyacınız var."));
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + Depo.getInstance().getConfig().getString("Dil.yetersizBakiye").replaceAll("%ihtiyac%", String.valueOf(ucret - Depo.getEconomy().getBalance(player)))));
                 }
             });
         } else if(level < 6) {
             this.fill(borderItem);
             super.setItem(14, levelUpItem, event -> {
                 event.getWhoClicked().closeInventory();
-                if(Depo.getEconomy().has(player, 1500 * level * 2)) {
+                if(Depo.getEconomy().has(player, ucret)) {
                     Depo.getData().set(player.getName() + ".level", level + 1);
-                    Depo.getEconomy().withdrawPlayer(player, 1500 * level *2);
+                    Depo.getEconomy().withdrawPlayer(player, ucret);
                     Depo.getData().save();
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + Depo.getInstance().getConfig().getString("Dil.seviyeYukseltildi")));
                 } else {
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&nDepo&8 » &e" + ((1500*level*2) - Depo.getEconomy().getBalance(player)) + " &cBakiyeye ihtiyacınız var."));
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + Depo.getInstance().getConfig().getString("Dil.yetersizBakiye").replaceAll("%ihtiyac%", String.valueOf(ucret - Depo.getEconomy().getBalance(player)))));
                 }
             });
             List<String> openDepoItemLore = new LinkedList<>();
-            levelUpItemLore.add("&8");
-            levelUpItemLore.add("&8⌈ &eDepo Bilgisi:");
-            levelUpItemLore.add("&8|");
-            levelUpItemLore.add("&8| &7Seviye: &e" + (level)+ " Svy.");
-            levelUpItemLore.add("&8|");
-            levelUpItemLore.add("&8⌊ &eDeponu açmak için tıkla!");
+            openDepoItemLore.add("&8");
+            openDepoItemLore.add("&8⌈ &eDepo Bilgisi:");
+            openDepoItemLore.add("&8|");
+            openDepoItemLore.add("&8| &7Sonraki Seviye: &e" + (level + 1)+ " Svy.");
+            openDepoItemLore.add("&8|");
+            openDepoItemLore.add("&8⌊ &eDeponu açmak için tıkla!");
             ItemStack openDepoItem = new HItemBuilder(XMaterial.CHEST.parseMaterial())
                     .name("&eDepoyu aç")
                     .lores(true, openDepoItemLore)
@@ -82,17 +85,29 @@ public class MainGUI extends HInventory {
             });
         } else {
             this.fill(borderItem);
+            levelUpItemLore = new LinkedList<>();
+            levelUpItemLore.add("&8");
+            levelUpItemLore.add("&8⌈ &eDepo Yükseltme:");
+            levelUpItemLore.add("&8|");
+            levelUpItemLore.add("&8| &7Şuanki Seviye: &e" + level + " Svy.");
+            levelUpItemLore.add("&8| &7Sonraki Seviye: &e&k" + (level + 1)+ " Svy.");
+            levelUpItemLore.add("&8|");
+            levelUpItemLore.add("&8⌊ &7Ücret: &e" + (ucret));
+            levelUpItem = new HItemBuilder(XMaterial.FIREWORK_ROCKET.parseMaterial())
+                    .name("&eSeviye Yükselt")
+                    .lores(true, levelUpItemLore)
+                    .build();
             super.setItem(14, levelUpItem, event -> {
                 event.getWhoClicked().closeInventory();
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6nDepo&8 » &bZaten Son seviyeye ulaştınız."));
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + Depo.getInstance().getConfig().getString("Dil.zatenSonSeviye")));
             });
             List<String> openDepoItemLore = new LinkedList<>();
-            levelUpItemLore.add("&8");
-            levelUpItemLore.add("&8⌈ &eDepo Bilgisi:");
-            levelUpItemLore.add("&8|");
-            levelUpItemLore.add("&8| &7Seviye: &e" + (level)+ " Svy.");
-            levelUpItemLore.add("&8|");
-            levelUpItemLore.add("&8⌊ &eDeponu açmak için tıkla!");
+            openDepoItemLore.add("&8");
+            openDepoItemLore.add("&8⌈ &eDepo Bilgisi:");
+            openDepoItemLore.add("&8|");
+            openDepoItemLore.add("&8| &7Seviye: &e" + (level) + " Svy.");
+            openDepoItemLore.add("&8|");
+            openDepoItemLore.add("&8⌊ &eDeponu açmak için tıkla!");
             ItemStack openDepoItem = new HItemBuilder(XMaterial.CHEST.parseMaterial())
                     .name("&eDepoyu aç")
                     .lores(true, openDepoItemLore)

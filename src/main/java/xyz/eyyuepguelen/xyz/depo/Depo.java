@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.eyyuepguelen.xyz.depo.commands.DepoCMD;
+import xyz.eyyuepguelen.xyz.depo.events.PlayerJoin;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ public final class Depo extends JavaPlugin {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
+        getServer().getPluginManager().registerEvents(new PlayerJoin(), this);
         HCore.registerCommands(new DepoCMD());
         saveDefaultConfig();
         System.out.println(ChatColor.translateAlternateColorCodes('&', "&aDepo eklentisi yüklendi."));
@@ -68,12 +70,17 @@ public final class Depo extends JavaPlugin {
         } return;
     }
     public void saveInventoryContents(Player player, Inventory inventory) {
-        getData().set(player.getName() + ".contents", inventory.getContents());
-        getData().save();
+        for(int i = 0 ; i < inventory.getSize() ; i++) {
+            if(inventory.getItem(i) != null) {
+                getData().set(player.getName() + ".contents." + i, inventory.getItem(i));
+            }
+            if(getData().get(player.getName() + ".contents." + i) != null && inventory.getItem(i) == null) {
+                getData().set(player.getName() + ".contents." + i, null);
+            }
+            getData().save();
+        }
     }
-    public ItemStack[] getInventoryContents(Player player) {
-        List<ItemStack> items = ((List<ItemStack>) getData().get(player.getName() + ".contents"));
-        ItemStack[] contents = items.toArray(new ItemStack[0]);
-        return contents;
+    public void getInventoryContents(Player player) {
+
     }
 }

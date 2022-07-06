@@ -1,0 +1,1 @@
+hCore ve Vault ekonomisini destekleyen bir eklenti gerekmektedir
